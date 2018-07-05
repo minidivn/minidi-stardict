@@ -37,18 +37,18 @@
           ctrl.displayWordResult(data);
       });
       
-      $.ajax({
-        method: "GET",
-        url: "/api/word/wiki",
-        context: document.body,
-        data: {
-          word: word
-        },
-        dataType: "json"
-      }).done(function(data) {
-          console.log(data);
-          ctrl.displayWordWikiResult(data);
-      });
+      // $.ajax({
+      //   method: "GET",
+      //   url: "/api/word/wiki",
+      //   context: document.body,
+      //   data: {
+      //     word: word
+      //   },
+      //   dataType: "json"
+      // }).done(function(data) {
+      //     console.log(data);
+      //     ctrl.displayWordWikiResult(data);
+      // });
     }
     
     this.displayWordResult = function(data){
@@ -60,7 +60,7 @@
         var categories = data.detail.categories;
 
         $('#result-word-meaning').empty();
-        var preContent = $("<pre>")
+        var preContent = $("<pre style='display:none'>")
               .text(main.text);
         $('#result-word-meaning').append(preContent);
         if (data.detail.pronunciation) {
@@ -74,7 +74,7 @@
           if (data) {
             var newRow = $("<li id='text_"+catIndex+"'>");
             newRow.append("<h5>"+data.title+"</h5>");
-            var preContent = $("<pre>")
+            var preContent = $("<pre style='display:none'>")
               .text(data.text);
             newRow.append(preContent);
             $('#result-word-meaning-list').append(newRow);

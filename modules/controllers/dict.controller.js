@@ -10,8 +10,52 @@ function getMeaningDetail(text){
 	var mainLines = mainRaw.split('\n');
 	var mainTitle = mainLines[0];
 	var main = {
-		text: mainRaw.substring(mainTitle.length+1)
+		text: mainRaw.substring(mainTitle.length+1),
+		wordClasses : []
 	};
+	var newWordClass = null;
+	var newWordMeaningListItem = null;
+	var newWordExample = null;
+	var newWordIdiom = null;
+	var newWordMeaningGroup = null;
+
+	mainLines.forEach((line)=>{
+		if (line.startsWith('*')){
+			newWordClass = {
+				title: line.substring(2).trim(),
+				list: [],
+				// idioms: [],
+				groups: []
+			};
+			main.wordClasses.push(newWordClass);
+			newWordMeaningGroup = null;
+		} else if (line.startsWith('-')){
+			newWordMeaningListItem = {
+				examples: [],
+			};
+			if (newWordMeaningGroup) {
+				newWordMeaningGroup.list.push(newWordMeaningListItem);
+			} else {
+				newWordClass.list.push(newWordMeaningListItem);
+			}
+		} else if (line.startsWith('=')){
+			var kv = line.substring(1).split('+');
+			newWordExample = {
+				phrase: kv[0].trim(),
+				text: kv[1].trim()
+			}
+			newWordMeaningListItem.examples.push(newWordExample);
+		} else if (line.startsWith('!')){
+			newWordMeaningGroup = {
+				title: line.substring(1).trim(),
+				list: [],
+				// idioms: []
+			};
+			newWordClass.groups.push(newWordMeaningGroup);
+		}
+	});
+
+
 	var transcription = mainTitle.substring(mainTitle.indexOf('/') + 1, mainTitle.indexOf('/', mainTitle.indexOf('/') + 1));
 	var sound = '';
 	var pronunciation = {};
@@ -24,10 +68,17 @@ function getMeaningDetail(text){
 		var catLines = categoriesRaw[i].split('\n');
 		var catTitle = catLines[0];
 		var catText = categoriesRaw[i].substring(catTitle.length+1);
-		categories.push({
+		var newCatData = {
 			title: catTitle,
 			text: catText
-		})
+		};
+		newCatData.list = [];
+		catLines.forEach((line)=>{
+			if (line.startsWith('-')){
+				newCatData.list.push(line.substring(1));
+			}
+		});
+		categories.push(newCatData);
 	}
 	return {main, categories, pronunciation};
 }
