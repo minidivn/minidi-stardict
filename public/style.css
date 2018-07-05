@@ -1,0 +1,9 @@
+.word-list li{
+  list-style-type: none;
+  border-bottom:  1pt solid #cccccc;
+  margin-left:2px;
+}
+
+.word-list{
+  padding-left:2px;
+}

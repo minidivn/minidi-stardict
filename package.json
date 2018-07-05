@@ -1,0 +1,30 @@
+{
+  "name": "minidi",
+  "version": "1.0.0",
+  "description": "Minidi",
+  "main": "app.js",
+  "engines": {
+    "node": "8.x.x",
+    "npm": "6.x.x"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "watch": "nodemon app.js"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "dotenv": "^5.0.1",
+    "express": "^4.16.3",
+    "lodash": "^4.17.10",
+    "memory-cache": "^0.2.0",
+    "mongodb": "^3.0.7",
+    "mongoose": "^5.0.17"
+  },
+  "devDependencies": {
+    "nodemon": "^1.17.2"
+  },
+  "removed-dependencies": {
+    "orientjs": "^2.2.10",
+    "ogm": "^0.0.4"
+  }
+}

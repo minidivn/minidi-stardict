@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Minidi. Từ điển trực tuyến</title>
+    <meta name="description" content="A cool thing made with Glitch">
+    <link id="favicon" rel="icon" href="https://glitch.com/edit/favicon-app.ico" type="image/x-icon">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+<!------ Include the above in your HEAD tag ---------->
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">Minidi</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li class="active"><a href="#">Trang chủ</a></li>
+      <li><a href="#">Học</a></li>
+      <li><a href="#">Thảo luận</a></li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="#"><span class="glyphicon glyphicon-user"></span> Dăng kí</a></li>
+      <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Dăng nhập</a></li>
+    </ul>
+  </div>
+</nav>
+    
+<div class="container">
+    <div class="row">    
+        <div class="col-xs-2 col-xxs-hidden">
+          <h3>
+            Tra từ
+          </h3>
+      </div>
+        <div class="col-xs-8">
+		    <div class="input-group">
+                <div class="input-group-btn search-panel">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                    	<span id="search_concept">Ngôn ngữ</span> <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                      <li><a href="#en_vi">Anh-Việt</a></li>
+                      <li class="divider"></li>
+                      <li><a href="#all">Tự xác định</a></li>
+                    </ul>
+                </div>     
+                <input type="text" class="form-control" id="search-word" placeholder="Nhập từ...">
+                <span class="input-group-btn">
+                    <button id="btn-search" class="btn btn-default" type="button">
+                      <span class="glyphicon glyphicon-search"></span>
+                  </button>
+                </span>
+            </div>
+        </div>
+	</div>
+</div>
+
+<!--
+<div class="container">
+
+    <hgroup class="mb20">
+		<h1>Kết quả</h1>
+		<h2 class="lead"><strong class="text-danger">3</strong> results were found for the search for <strong class="text-danger">Lorem</strong></h2>								
+	</hgroup>
+
+    <section class="col-xs-12 col-sm-6 col-md-12">
+      
+		<article class="search-result row">
+			<div class="col-xs-12 col-sm-12 col-md-3">
+				<a href="#" title="Lorem ipsum" class="thumbnail">
+          <img src="http://lorempixel.com/250/140/" alt="Hình ảnh" />
+        </a>
+			</div>
+			
+			<div class="col-xs-12 col-sm-12 col-md-7 excerpet">
+				<h3><a href="#" title="">Voluptatem, exercitationem, suscipit, distinctio</a></h3>
+				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatem, exercitationem, suscipit, distinctio, qui sapiente aspernatur molestiae non corporis magni sit sequi iusto debitis delectus doloremque.</p>						
+                <span class="plus"><a href="#" title="Lorem ipsum"><i class="glyphicon glyphicon-plus"></i></a></span>
+			</div>
+      
+      <div class="col-xs-12 col-sm-12 col-md-2">
+				<ul class="meta-search">
+					<li><i class="glyphicon glyphicon-calendar"></i> <span>02/15/2014</span></li>
+					<li><i class="glyphicon glyphicon-time"></i> <span>4:28 pm</span></li>
+					<li><i class="glyphicon glyphicon-tags"></i> <span>People</span></li>
+				</ul>
+			</div>
+			<span class="clearfix borda"></span>
+		</article>
+
+	</section>
+</div>
+-->    
+<div class="container">
+    <div class="row">
+        <div class="col-md-2 col-xxs-hidden" style="height:500px;">
+          <div style="height: 100%; overflow: scroll">
+            <ul id="word-list" class="word-list">
+              <li>A</li>
+              <li>B</li>
+            </ul>
+          </div>
+      </div>
+        <div class="col-md-10" id="result-cont">
+            <div class="panel-group" style="border: none" id="result-notfound-panel">
+              <p>
+                <h5>
+                  Mời bạn nhập từ cần tìm.
+              </h5>
+              </p>
+            </div>
+            <div class="panel-group" style="border: none" id="result-found-panel">
+                <div class="panel panel-default" style="border: none">
+                    <div style="border-top: 1px solid grey; border-bottom: 1px solid grey">
+                        <h4 class="panel-title" style="height: 60px; line-height: 60px; ">
+                             <div data-toggle="collapse" id="result-word" style="width: 50%; float: left">
+                            </div> 
+                            <div id="pronunciation" style="width: 50%; float: right">
+                              <i class="glyphicon glyphicon-volume-up" id="sound"></i>
+                              <span id="transcription" style="font-style: italic;"></span>
+                            </div>
+                        </h4>
+                        <!--<span class="glyphicon glyphicon-chevron-down"></span>-->
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <table class="table">
+                                <tr>
+                                    <td>
+                                        <p id="result-word-meaning"></p>
+                                        <ol id="result-word-meaning-list">
+                                        </ol>
+                                      
+                                    </td>
+                                </tr>
+                                <tr>
+                                <td>
+                                    <p>Từ gần nghĩa:</p>
+                                    <ul>
+                                      <li><a href="#"></a></li>
+                                    </ul>
+                                    <p>Từ trái nghĩa:</p>
+                                    <ul>
+                                      <li><a href="#"></a></li>
+                                    </ul>
+                                    <p>Từ liên quan:</p>
+                                    <ul>
+                                      <li><a href="#"></a></li>
+                                    </ul>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>
+                                    <h4>Wikipedia:</h4>
+                                    <div id="result-wiki">
+                                      <div>
+                                        
+                                      </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <footer class="container">
+      <hr/>
+      <a href="https://minidi.vn">Minidi</a> 2018
+    </footer>
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.core.min.js"></script>
+    <!-- import the webpage's client-side javascript file -->
+    <script src="/client.js"></script>
+
+  </body>
+</html>
