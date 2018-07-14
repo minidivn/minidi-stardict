@@ -1,8 +1,8 @@
 
-const sd = require('../../utils/stardictUtils.js');
+const sd = require('./stardictUtils.js');
 var _ = require("lodash");
 
-module.exports.route = function(app){
+module.exports.cache = function(app){
 	//CACHE=================================================
 	console.log('Read dz file');
 	const dzfile = './data/en-vi/star_anhviet.dict.dz';

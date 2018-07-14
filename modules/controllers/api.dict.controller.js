@@ -1,5 +1,5 @@
 
-const sd = require('../../utils/stardictUtils.js');
+const sd = require('../stardict/stardictUtils.js');
 var _ = require("lodash");
 
 function getMeaningDetail(text){
@@ -18,6 +18,7 @@ function getMeaningDetail(text){
 	var newWordExample = null;
 	var newWordIdiom = null;
 	var newWordMeaningGroup = null;
+	var currentWordMeaningGroup = null;
 
 	mainLines.forEach((line)=>{
 		if (line.startsWith('*')){
@@ -28,13 +29,14 @@ function getMeaningDetail(text){
 				groups: []
 			};
 			main.wordClasses.push(newWordClass);
-			newWordMeaningGroup = null;
+			currentWordMeaningGroup = null;
 		} else if (line.startsWith('-')){
 			newWordMeaningListItem = {
+				text: line.substring(1).trim(),
 				examples: [],
 			};
-			if (newWordMeaningGroup) {
-				newWordMeaningGroup.list.push(newWordMeaningListItem);
+			if (currentWordMeaningGroup) {
+				currentWordMeaningGroup.list.push(newWordMeaningListItem);
 			} else {
 				newWordClass.list.push(newWordMeaningListItem);
 			}
@@ -51,10 +53,10 @@ function getMeaningDetail(text){
 				list: [],
 				// idioms: []
 			};
+			currentWordMeaningGroup = newWordMeaningGroup;
 			newWordClass.groups.push(newWordMeaningGroup);
 		}
 	});
-
 
 	var transcription = mainTitle.substring(mainTitle.indexOf('/') + 1, mainTitle.indexOf('/', mainTitle.indexOf('/') + 1));
 	var sound = '';
@@ -69,50 +71,55 @@ function getMeaningDetail(text){
 		var catTitle = catLines[0];
 		var catText = categoriesRaw[i].substring(catTitle.length+1);
 		var newCatData = {
-			title: catTitle,
-			text: catText
+			title: catTitle.trim(),
+			text: catText.trim()
 		};
 		newCatData.list = [];
 		catLines.forEach((line)=>{
 			if (line.startsWith('-')){
-				newCatData.list.push(line.substring(1));
+				newCatData.list.push(line.substring(1).trim());
 			}
 		});
 		categories.push(newCatData);
 	}
 	return {main, categories, pronunciation};
 }
+
+function listWords(req, res){
+	var app = req.app;
+	var cachedWordlist = app.get('wordlist');
+	console.log('Index words num : ' + cachedWordlist.length);
+	var pageIndex = req.query.pageIndex || 0;
+	var pageSize = req.query.pageSize || 100;
+  	var list = _.chain(cachedWordlist)
+  			.slice(pageIndex * pageSize, pageIndex * pageSize + pageSize)
+  			.map(a=>{return a[2]});
+  	res.json (list);
+}
+
+function findWord(req, res){
+	var app = req.app;
+	var dzfile = app.get('dzfile');
+	var word = req.query.word;
+
+	let meaningText = sd.getArticleBodyfromDZ3(dzfile, word, true);
+	if (meaningText) {
+		let meaningDetail = getMeaningDetail(meaningText);
+		console.log(word, ' : ' , meaningDetail);
+		res.json ({
+		  word: word,
+		  meaningText: meaningText,
+		  detail: meaningDetail
+		});
+	} else {
+		res.json({
+			word: word
+		});
+	}
+}
+
 module.exports.route = function(app){
-	//APIS===================================================
+	app.get("/api/word/list/", listWords);
 
-	app.get("/api/word/list/", function (req, res){
-		var cachedWordlist = app.get('wordlist');
-		console.log('Index words num : ' + cachedWordlist.length);
-		var pageIndex = req.query.pageIndex || 0;
-		var pageSize = req.query.pageSize || 100;
-	  	var list = _.chain(cachedWordlist)
-	  			.slice(pageIndex * pageSize, pageIndex * pageSize + pageSize)
-	  			.map(a=>{return a[2]});
-	  	res.json (list);
-	});
-
-	app.get("/api/word/find/", function (req, res){
-		var dzfile = app.get('dzfile');
-		var word = req.query.word;
-
-		let meaningText = sd.getArticleBodyfromDZ3(dzfile, word, true);
-		if (meaningText) {
-			let meaningDetail = getMeaningDetail(meaningText);
-			console.log(word, ' : ' , meaningDetail);
-			res.json ({
-			  word: word,
-			  meaningText: meaningText,
-			  detail: meaningDetail
-			});
-		} else {
-			res.json({
-				word: word
-			});
-		}
-	});
+	app.get("/api/word/find/", findWord);
 }

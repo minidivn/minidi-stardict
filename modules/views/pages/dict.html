@@ -1,0 +1,115 @@
+{{!< default-layout}}
+
+{{#contentFor 'content'}}
+    <div id='tab-dict'>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-2 col-xxs-hidden">
+                    <h3>
+            Tra từ
+          </h3>
+                </div>
+                <div class="col-xs-8">
+                    <div class="input-group">
+                        <div class="input-group-btn search-panel">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span id="search_concept">Ngôn ngữ</span> <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="#en_vi">Anh-Việt</a></li>
+                                <li class="divider"></li>
+                                <li><a href="#all">Tự xác định</a></li>
+                            </ul>
+                        </div>
+                        <input type="text" class="form-control" id="search-word" placeholder="Nhập từ...">
+                        <span class="input-group-btn">
+                    <button id="btn-search" class="btn btn-default" type="button">
+                      <span class="glyphicon glyphicon-search"></span>
+                        </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-2 col-xxs-hidden" style="height:500px;">
+                    <div style="height: 100%; overflow: scroll">
+                        <ul id="word-list" class="word-list" style="display: none">
+                            <li>A</li>
+                            <li>B</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-10" id="result-cont">
+                    <div class="panel-group" style="border: none" id="result-notfound-panel">
+                        <p>
+                            <h5>
+                  Mời bạn nhập từ cần tìm. <i>Không có từ này!</i>
+              </h5>
+                        </p>
+                    </div>
+                    <div class="panel-group" style="border: none" id="result-found-panel">
+                        <div class="panel panel-default" style="border: none">
+                            <div style="border-top: 1px solid grey; border-bottom: 1px solid grey">
+                                <h4 class="panel-title" style="height: 60px; line-height: 60px; ">
+                             <div data-toggle="collapse" id="result-word" style="width: 50%; float: left">
+                            </div> 
+                            <div id="pronunciation" style="width: 50%; float: right">
+                              <i class="glyphicon glyphicon-volume-up" id="sound"></i>
+                              <span id="transcription" style="font-style: italic;"></span>
+                            </div>
+                        </h4>
+                                <!--<span class="glyphicon glyphicon-chevron-down"></span>-->
+                            </div>
+                            <div id="collapseOne" class="panel-collapse collapse in">
+                                <div class="panel-body">
+                                    <table class="table">
+                                        <tr>
+                                            <td>
+                                                <p id="result-word-meaning"></p>
+                                                <h4>Nghĩa chuyên nghành</h4>
+                                                <ol id="result-word-meaning-list">
+                                                </ol>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <h4>Liên quan</h4>
+                                                <p>Từ gần nghĩa:</p>
+                                                <ul>
+                                                    <li><a href="#"></a></li>
+                                                </ul>
+                                                <p>Từ trái nghĩa:</p>
+                                                <ul>
+                                                    <li><a href="#"></a></li>
+                                                </ul>
+                                                <p>Từ liên quan:</p>
+                                                <ul>
+                                                    <li><a href="#"></a></li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <h4>Wikipedia:</h4>
+                                                <div id="result-wiki">
+                                                    <div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{{/contentFor}}
+
+{{#contentFor 'page-script'}}
+    <script src="/js/page.dict.js"></script>
+{{/contentFor}}

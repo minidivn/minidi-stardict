@@ -7,3 +7,13 @@
 .word-list{
   padding-left:2px;
 }
+
+span.phrase{
+	font-weight: bold;
+}
+
+.word-sub-group{
+	margin-left: 80px;
+	padding-left: 10px;
+	background-color: #eeeeee;
+}
