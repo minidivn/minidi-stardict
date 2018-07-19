@@ -1,13 +1,7 @@
 var path = require('path'),
     mongoose = require('mongoose');
 var bluebird = require('bluebird');
-
-var config = {
-    db: {
-        uri: process.env.MONGOURL || process.env.MONGODB_URI || 'mongodb://localhost:27017/minidi',
-        options: {}
-    }
-};
+var config = require('../config/index');
 
 module.exports.config = config;
 

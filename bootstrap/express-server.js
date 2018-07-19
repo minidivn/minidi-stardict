@@ -2,6 +2,7 @@ var _ = require('lodash');
 var dotenv = require('dotenv');
 var path = require('path');
 var envCfg = dotenv.config({ path: '.env' });
+var cors = require('cors');
 
 var express = require('express'),
     http = require('http'),
@@ -44,15 +45,18 @@ function configRoutes(app){
     require('../modules/controllers/api.forum.controller').route(app);
     // require('../modules/controllers/view.index.controller').route(app);
 }
+function configCors(app){
+    app.use(cors());
+}
 
 module.exports.init = function (){
 	var app = express();
 	this.app = app;
 	configStatic(app);
+    configCors(app);
 	// configViews(app);
 	configRoutes(app);
 };
-
 module.exports.start = function(cb) {
 	var app = this.app;
 	var port = process.env.PORT || 4000;

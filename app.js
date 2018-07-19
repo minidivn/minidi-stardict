@@ -1,19 +1,16 @@
-var dotenv = require('dotenv');
 var path = require('path');
-var envCfg = dotenv.config({ path: '.env' }).parsed;
-
-// console.log(envCfg);
+var config = require('./config/index');
 
 var mongoBootstrap = require('./bootstrap/mongoose');
 mongoBootstrap.connect()
-.then((config) => {
+.then((dbConfig) => {
 	var expressBootstrap = require('./bootstrap/express-server');
 	expressBootstrap.init();
 
 	var cache = require('./bootstrap/cache');
 	cache.init(expressBootstrap.app);
 
-	if (envCfg.seed) {
+	if (config.seed) {
 		var seeding = require('./bootstrap/seed');
 		seeding.start(expressBootstrap.app);
 	}
