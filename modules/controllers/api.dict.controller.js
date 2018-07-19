@@ -2,17 +2,14 @@
 const sd = require('../stardict/stardictUtils.js');
 var _ = require("lodash");
 
-function getMeaningDetail(text){
-	var categoriesRaw = text.split('@');
-	var categories = [];
-	categoriesRaw.splice(0, 1);
-	var mainRaw = categoriesRaw[0];
-	var mainLines = mainRaw.split('\n');
-	var mainTitle = mainLines[0];
+
+function extractMain(mainLines) {
+
 	var main = {
-		text: mainRaw.substring(mainTitle.length+1),
+		// text: text,
 		wordClasses : []
 	};
+
 	var newWordClass = null;
 	var newWordMeaningListItem = null;
 	var newWordExample = null;
@@ -22,8 +19,14 @@ function getMeaningDetail(text){
 
 	mainLines.forEach((line)=>{
 		if (line.startsWith('*')){
+			var regExp = /(^\*\W*)(.*$)/;
+			var strMatch = regExp.exec(line);
+			if (!regExp.test(line)){
+				console.log('Invalid format: * :', regExp.test(line), strMatch);
+				throw new Error('Invalid format: * :' + line);
+			}
 			newWordClass = {
-				title: line.substring(2).trim(),
+				title: strMatch[2].trim(),
 				list: [],
 				// idioms: [],
 				groups: []
@@ -31,8 +34,14 @@ function getMeaningDetail(text){
 			main.wordClasses.push(newWordClass);
 			currentWordMeaningGroup = null;
 		} else if (line.startsWith('-')){
+			var regExp = /(^-\W*)(.*$)/;
+			var strMatch = regExp.exec(line);
+			if (!regExp.test(line)){
+				console.log('Invalid format: * :', regExp.test(line), strMatch);
+				throw new Error('Invalid format: - :' + line);
+			}
 			newWordMeaningListItem = {
-				text: line.substring(1).trim(),
+				text: strMatch[2].trim(),
 				examples: [],
 			};
 			if (currentWordMeaningGroup) {
@@ -41,15 +50,27 @@ function getMeaningDetail(text){
 				newWordClass.list.push(newWordMeaningListItem);
 			}
 		} else if (line.startsWith('=')){
-			var kv = line.substring(1).split('+');
+			var regExp = /(^=\W*)(.*$)/;
+			var strMatch = regExp.exec(line);
+			if (!regExp.test(line)){
+				console.log('Invalid format: * :', regExp.test(line), strMatch);
+				throw new Error('Invalid format: - :' + line);
+			}
+			var kv = strMatch[2].split('+');
 			newWordExample = {
 				phrase: kv[0].trim(),
 				text: kv[1].trim()
 			}
 			newWordMeaningListItem.examples.push(newWordExample);
 		} else if (line.startsWith('!')){
+			var regExp = /(^\!\W*)(.*$)/;
+			var strMatch = regExp.exec(line);
+			if (!regExp.test(line)){
+				console.log('Invalid format: * :', regExp.test(line), strMatch);
+				throw new Error('Invalid format: ! :' + line);
+			}
 			newWordMeaningGroup = {
-				title: line.substring(1).trim(),
+				title: strMatch[2].trim(),
 				list: [],
 				// idioms: []
 			};
@@ -58,14 +79,25 @@ function getMeaningDetail(text){
 		}
 	});
 
+	return main;
+}
+
+function extractPronunciation(mainTitle){
+	var pronunciation = {};
+	
 	var transcription = mainTitle.substring(mainTitle.indexOf('/') + 1, mainTitle.indexOf('/', mainTitle.indexOf('/') + 1));
 	var sound = '';
-	var pronunciation = {};
 	if (transcription) {
 		pronunciation.transcription = transcription;
 	} else {
 		pronunciation = null;
 	}
+	return pronunciation;
+}
+
+function extractCategories(categoriesRaw) {
+	var categories = [];
+
 	for (var i=1; i< categoriesRaw.length; i++){
 		var catLines = categoriesRaw[i].split('\n');
 		var catTitle = catLines[0];
@@ -82,6 +114,35 @@ function getMeaningDetail(text){
 		});
 		categories.push(newCatData);
 	}
+
+	return categories;
+}
+
+function getMeaningDetail(text){
+	var mainRaw = null;
+	var categoriesRaw = text.split('@');
+	if (categoriesRaw.length < 1) {
+		throw new Error('Invalid format: categoriesRaw');
+	} else if (categoriesRaw.length == 1) {
+		// Do not modify categoriesRaw
+	} else {
+		categoriesRaw.splice(0, 1);
+	}
+
+	mainRaw = categoriesRaw[0];
+	if (!mainRaw) {
+		throw new Error('Invalid format: mainRaw');
+	}
+	var mainLines = mainRaw.split('\n');
+	var main = extractMain(mainLines);
+	var pronunciation = null;
+
+	if (text.startsWith('@')) {
+		var mainTitle = mainLines[0];
+		pronunciation = extractPronunciation(mainTitle);
+	}
+	
+	var categories = extractCategories(categoriesRaw);
 	return {main, categories, pronunciation};
 }
 
@@ -101,19 +162,33 @@ function findWord(req, res){
 	var app = req.app;
 	var dzfile = app.get('dzfile');
 	var word = req.query.word;
+	var isNotFound = false;
 
 	let meaningText = sd.getArticleBodyfromDZ3(dzfile, word, true);
 	if (meaningText) {
-		let meaningDetail = getMeaningDetail(meaningText);
-		console.log(word, ' : ' , meaningDetail);
-		res.json ({
-		  word: word,
-		  meaningText: meaningText,
-		  detail: meaningDetail
-		});
+		try {
+			let meaningDetail = getMeaningDetail(meaningText);
+			// console.log(meaningText);
+			// console.log(word, ' : ' , meaningDetail);
+			res.json ({
+			  word: word,
+			  meaningText: meaningText,
+			  detail: meaningDetail
+			});
+		} catch (err) {
+			console.log('Invalid format: ');
+			console.log(meaningText);
+			console.log(err);
+			isNotFound = true;
+		}
 	} else {
+			isNotFound = true;
+	}
+
+	if (isNotFound) {
 		res.json({
-			word: word
+			word: word,
+			message: 'Not found!'
 		});
 	}
 }
