@@ -42,14 +42,14 @@ function configViews(app){
 function configRoutes(app){
 	require('../modules/controllers/api.dict.controller').route(app);
     require('../modules/controllers/api.forum.controller').route(app);
-    require('../modules/controllers/view.index.controller').route(app);
+    // require('../modules/controllers/view.index.controller').route(app);
 }
 
 module.exports.init = function (){
 	var app = express();
 	this.app = app;
 	configStatic(app);
-	configViews(app);
+	// configViews(app);
 	configRoutes(app);
 };
 

@@ -4,7 +4,7 @@ var bluebird = require('bluebird');
 
 var config = {
     db: {
-        uri: process.env.MONGOURL || 'mongodb://localhost:27017/minidi',
+        uri: process.env.MONGOURL || process.env.MONGODB_URI || 'mongodb://localhost:27017/minidi',
         options: {}
     }
 };
