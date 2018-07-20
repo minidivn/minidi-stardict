@@ -1,7 +1,6 @@
-
-const sd = require('../stardict/stardictUtils.js');
 var _ = require("lodash");
-
+const sd = require('../stardict/stardictUtils.js');
+var dictConfig = require("../stardict/dict.config.js");
 
 function extractMain(mainLines) {
 
@@ -19,7 +18,7 @@ function extractMain(mainLines) {
 
 	mainLines.forEach((line)=>{
 		if (line.startsWith('*')){
-			var regExp = /(^\*\W*)(.*$)/;
+			var regExp = /(^\*\s*)(.*$)/;
 			var strMatch = regExp.exec(line);
 			if (!regExp.test(line)){
 				console.log('Invalid format: * :', regExp.test(line), strMatch);
@@ -34,36 +33,56 @@ function extractMain(mainLines) {
 			main.wordClasses.push(newWordClass);
 			currentWordMeaningGroup = null;
 		} else if (line.startsWith('-')){
-			var regExp = /(^-\W*)(.*$)/;
+			var regExp = /(^-\s*)(.*$)/;
 			var strMatch = regExp.exec(line);
 			if (!regExp.test(line)){
 				console.log('Invalid format: * :', regExp.test(line), strMatch);
 				throw new Error('Invalid format: - :' + line);
 			}
+			var meanText = strMatch[2].trim();
+			if (meanText.endsWith(';')) {
+				meanText = meanText.substr(0, meanText.lastIndexOf(';'));
+			}
 			newWordMeaningListItem = {
-				text: strMatch[2].trim(),
+				text: meanText,
 				examples: [],
 			};
 			if (currentWordMeaningGroup) {
 				currentWordMeaningGroup.list.push(newWordMeaningListItem);
 			} else {
+				if (!newWordClass) {
+					newWordClass = { // main class
+						title: '',
+						list: [],
+						groups: []
+					};
+					main.wordClasses.push(newWordClass);
+				}
 				newWordClass.list.push(newWordMeaningListItem);
 			}
 		} else if (line.startsWith('=')){
-			var regExp = /(^=\W*)(.*$)/;
+			var regExp = /(^=\s*)(.*$)/;
 			var strMatch = regExp.exec(line);
 			if (!regExp.test(line)){
 				console.log('Invalid format: * :', regExp.test(line), strMatch);
 				throw new Error('Invalid format: - :' + line);
 			}
-			var kv = strMatch[2].split('+');
-			newWordExample = {
-				phrase: kv[0].trim(),
-				text: kv[1].trim()
+			var exampleText = strMatch[2];
+			if (exampleText) {
+				var kv = [];
+				if (exampleText.indexOf('+') != -1) {
+					kv = exampleText.split('+');
+				} else if (exampleText.indexOf('~') != -1) {
+					kv = exampleText.split('~');
+				}
+				newWordExample = {
+					phrase: kv.length >=1 ? kv[0].trim(): '',
+					text: kv.length >=2 ? kv[1].trim(): ''
+				}
+				newWordMeaningListItem.examples.push(newWordExample);
 			}
-			newWordMeaningListItem.examples.push(newWordExample);
 		} else if (line.startsWith('!')){
-			var regExp = /(^\!\W*)(.*$)/;
+			var regExp = /(^\!\s*)(.*$)/;
 			var strMatch = regExp.exec(line);
 			if (!regExp.test(line)){
 				console.log('Invalid format: * :', regExp.test(line), strMatch);
@@ -148,7 +167,9 @@ function getMeaningDetail(text){
 
 function listWords(req, res){
 	var app = req.app;
-	var cachedWordlist = app.get('wordlist');
+	var dictPair = req.query.dict || 'en-vi';
+	var cachedDictInfo = app.get('cache.dict.' + dictPair);
+	var cachedWordlist = cachedDictInfo.wordlist;
 	console.log('Index words num : ' + cachedWordlist.length);
 	var pageIndex = req.query.pageIndex || 0;
 	var pageSize = req.query.pageSize || 100;
@@ -160,11 +181,17 @@ function listWords(req, res){
 
 function findWord(req, res){
 	var app = req.app;
-	var dzfile = app.get('dzfile');
+	var dictPair = req.query.dict || 'en-vi';
+	var cachedDictInfo = app.get('cache.dict.' + dictPair);
 	var word = req.query.word;
 	var isNotFound = false;
 
-	let meaningText = sd.getArticleBodyfromDZ3(dzfile, word, true);
+	let meaningText = "";
+	if (cachedDictInfo.filePathDz.endsWith('.dz')){
+		meaningText = sd.getArticleBodyFromDZByQueryFile(cachedDictInfo.filePathDz, cachedDictInfo.filePathIndex, word, true, cachedDictInfo.wordlist);
+	} else {
+		meaningText = sd.getArticleBodyFromTextDictByQueryFile(cachedDictInfo.filePathDz, cachedDictInfo.filePathIndex, word, true, cachedDictInfo.wordlist);
+	}
 	if (meaningText) {
 		try {
 			let meaningDetail = getMeaningDetail(meaningText);
@@ -193,7 +220,13 @@ function findWord(req, res){
 	}
 }
 
+function listDicts(req, res) {
+	res.json(dictConfig.list());
+}
+
 module.exports.route = function(app){
+	app.get("/api/dict/list/", listDicts);
+
 	app.get("/api/word/list/", listWords);
 
 	app.get("/api/word/find/", findWord);
