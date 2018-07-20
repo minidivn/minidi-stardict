@@ -1,0 +1,2 @@
+Minidi examples
+===============
