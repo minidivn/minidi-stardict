@@ -42,7 +42,7 @@ function configViews(app){
 
 function configRoutes(app){
 	require('../modules/controllers/api.dict.controller').route(app);
-    require('../modules/controllers/api.forum.controller').route(app);
+    // require('../modules/controllers/api.forum.controller').route(app);
     // require('../modules/controllers/view.index.controller').route(app);
 }
 function configCors(app){
@@ -62,6 +62,7 @@ module.exports.start = function(cb) {
 	var port = process.env.PORT || 4000;
 	var listener = app.listen(port, function () {
 	  console.log('Your app is listening on port ' + port);
-	  if (cb) cb(app, listener);
+	  if (cb) 
+		  cb(app, listener);
 	});
 }
